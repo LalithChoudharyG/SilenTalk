@@ -1,1 +1,0 @@
-Hello this is Lalith Choudhary, Im responsible for Full-stack development and handling the views/template in project architecture
