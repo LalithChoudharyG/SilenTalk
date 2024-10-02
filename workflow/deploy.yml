@@ -1,0 +1,63 @@
+name: CI/CD Pipeline for Django on AWS
+
+on:
+  push:
+    branches:
+      - main  # Triggers on push to the main branch
+
+jobs:
+  test:
+    name: Run Django Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          python manage.py test
+
+  deploy:
+    name: Deploy to AWS Elastic Beanstalk
+    runs-on: ubuntu-latest
+    needs: test  # Deploys only if the tests pass
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Deploy to Elastic Beanstalk
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          zip -r django-app.zip *  # Compress the project into a zip file
+          aws elasticbeanstalk create-application-version --application-name SilenTalk --version-label <Your-Version-Label> --source-bundle S3Bucket=<S3-Bucket>,S3Key=django-app.zip
+          aws elasticbeanstalk update-environment --application-name SilenTalk --environment-name <Your-Environment-Name> --version-label <Your-Version-Label>
