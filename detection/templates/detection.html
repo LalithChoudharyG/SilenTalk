@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Center the video and canvas overlay */
+    #videoContainer {
+        position: relative;
+        display: inline-block;
+    }
+
+    #video {
+        display: block;
+    }
+
+    #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        /* Ensures the canvas does not interfere with video */
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Side: Video Window -->
+        <div class="col-md-8 mt-3" style="overflow: hidden;">
+            <div id="videoContainer" style="position: relative;">
+                <video id="video" autoplay style="width: 100%; height: auto;"></video>
+                <canvas id="canvas" style="position: absolute; top: 0; left: 0;"></canvas>
+            </div>
+        </div>
+
+        <!-- Right Side: Confirmation Time, Confirmed Signs, and Formed Sentence -->
+        <div class="col-md-4">
+            <!-- Start and Stop Buttons -->
+            <div class="mt-3">
+                <button id="startButton" class="btn btn-primary btn-block">Start Camera</button>
+                <button id="stopButton" class="btn btn-danger btn-block">Stop Camera</button>
+            </div>
+
+            <!-- Current Sign -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Current Sign</h5>
+                    <p id="currentSign" class="card-text"></p>
+                </div>
+            </div>
+
+            <!-- Confirmed Signs -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Confirmed Signs</h5>
+                    <p id="confirmedSigns" class="card-text"></p>
+                </div>
+            </div>
+
+            <!-- Formed Sentence -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Formed Sentence</h5>
+                    <p id="sentence" class="card-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Your existing script -->
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const ws = new WebSocket('ws://localhost:8001/ws/detect/');
+    let isStreaming = false;
+
+    // Set up WebSocket event handlers
+    ws.onopen = () => console.log("WebSocket connection established");
+    ws.onmessage = event => {
+        const data = JSON.parse(event.data);
+
+        // Check for processing delay in the message
+        if (data.processing_delay) {
+            console.log(`Processing delay: ${data.processing_delay.toFixed(5)} seconds`);
+        }
+
+        // Handle detections as before
+        if (data.detections && Array.isArray(data.detections)) {
+            context.clearRect(0, 0, canvas.width, canvas.height);  // Clear previous drawings
+            data.detections.forEach(detection => {
+                const { bbox, class_name, confidence } = detection;
+                const [x1, y1, x2, y2] = bbox;
+
+                // Draw bounding box and label
+                context.strokeStyle = "red";
+                context.lineWidth = 2;
+                context.strokeRect(x1, y1, x2 - x1, y2 - y1);
+
+                // Display class name and confidence
+                context.fillStyle = "red";
+                context.font = "16px Arial";
+                context.fillText(`${class_name} (${(confidence * 100).toFixed(1)}%)`, x1, y1 - 10);
+            });
+        }
+
+        // Display current sign and timer
+        if (data.current_sign && data.elapsed_time !== undefined) {
+            const currentSignDiv = document.getElementById('currentSign');
+            currentSignDiv.textContent = `Sign: ${data.current_sign}, Time: ${data.elapsed_time.toFixed(1)}s`;
+        }
+
+        // Display confirmed signs
+        if (data.confirmed_signs) {
+            const confirmedSignsDiv = document.getElementById('confirmedSigns');
+            confirmedSignsDiv.textContent = data.confirmed_signs.join(', ');
+        }
+
+        // Handle sentence display
+        if (data.sentence) {
+            console.log("Predicted sentence:", data.sentence);
+            const sentenceDiv = document.getElementById('sentence');
+            sentenceDiv.textContent = data.sentence;
+        }
+    };
+    ws.onclose = () => console.log("WebSocket closed");
+
+    // Start button event
+    document.getElementById('startButton').onclick = () => {
+        ws.send(JSON.stringify({ command: "start" }));
+        startCamera();
+    };
+
+    // Stop button event
+    document.getElementById('stopButton').onclick = () => {
+        ws.send(JSON.stringify({ command: "stop" }));
+        stopCamera();
+    };
+
+    // Start camera function
+    function startCamera() {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                isStreaming = true;
+
+                // Adjust canvas size to match video dimensions once video metadata is available
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    sendFrame();
+                };
+            });
+    }
+
+    // Stop camera function
+    function stopCamera() {
+        if (video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+        }
+        isStreaming = false;
+        context.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
+
+        // Clear the displays
+        document.getElementById('currentSign').textContent = '';
+        document.getElementById('confirmedSigns').textContent = '';
+        document.getElementById('sentence').textContent = '';
+    }
+
+    // Capture and send frames periodically
+    function sendFrame() {
+        if (!isStreaming) return;
+
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const frameBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
+        ws.send(JSON.stringify({ frame: frameBase64 }));
+
+        setTimeout(sendFrame, 1500);  // Send frame every 1500 ms
+    }
+</script>
+{% endblock %}

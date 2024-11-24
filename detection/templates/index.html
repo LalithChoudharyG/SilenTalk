@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+<div class="row mt-5">
+    <div class="form-group mt-3">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+
+            <div class="alert {{ message.tags }}"> {{ message }}</div>
+
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <!-- Welcome Section -->
+    <div class="col-md-6 text-center">
+        <h1>Welcome to Real-Time Sign Language Translator!!!</h1>
+        <p>Our platform bridges the communication gap between sign language users and non-sign language speakers. Using
+            advanced computer vision and machine learning, we offer instant translation of sign language gestures into
+            text or speech, enhancing communication in real-time across various environments.</p>
+
+        <!-- Features Section -->
+        <h2>Accessible and Inclusive Communication</h2>
+        <p>We empower individuals to communicate effectively and foster inclusivity. Our platform is designed to be
+            user-friendly, ensuring everyone, regardless of language proficiency, can engage meaningfully.</p>
+    </div>
+    <!-- Image Section -->
+    <div class="col-md-6">
+        <img class="img-fluid rounded-6"
+            src="https://lh6.googleusercontent.com/proxy/WUdKJ0Dyo_6P0kaowwItvqxEXSX6a-RHG3QtcLd0DpMv3e4rj5qCqy2rIAdY2OOABpeKj1ZDHMLUU8rtwDwSOR3_HOFXdcFN_TdmXLtcBMkPmvdPLuk4Rzdtyb9Oo84Vzqk"
+            alt="Sign Language Translation">
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <img class="img-fluid rounded-6"
+            src="https://news.wayne.edu/storage/files/shutterstock-1946047489-2-634816505051b.jpg"
+            alt="Accessible Communication">
+    </div>
+
+    <div class="col-md-6 text-center">
+        <h2>Instant and Seamless Translation</h2>
+        <p>Our real-time translation tool captures sign language gestures through a webcam, instantly translating them
+            into text or speech. This seamless translation process facilitates understanding and response, making
+            communication more accessible in educational institutions, workplaces, healthcare, and customer service
+            environments.</p>
+
+        <h2>Empowering Accessibility</h2>
+        <p>By providing an intuitive and accessible interface, we promote better understanding, reduce communication
+            barriers, and create a more inclusive society. Engage with our platform to experience effortless, meaningful
+            communication for everyone.</p>
+    </div>
+    
+
+
+</div>
+</br>
+<div>
+    <h3>More Features and Updates coming up!!!</h3>
+</div>
+</br>
+<!-- Contact Form -->
+<!-- Contact Form -->
+<section class="mt-5">
+    <h2>Contact Us</h2>
+    <form action="" method="POST" class="row g-3">
+        {% csrf_token %}
+        <div class="form-group col-md-6">
+            <input type="text" class="form-control" name="first_name" placeholder="Enter first name" required>
+        </div>
+        <div class="form-group col-md-6">
+            <input type="text" class="form-control" name="last_name" placeholder="Enter last name" required>
+        </div>
+        <div class="form-group col-md-6">
+            <input type="email" class="form-control" name="email" placeholder="Enter Email address" required>
+        </div>
+        <div class="form-group col-md-6">
+            <input type="text" class="form-control" name="subject" placeholder="Enter subject" required>
+        </div>
+        <div class="form-group col-md-12">
+            <textarea name="message" rows="5" class="form-control" placeholder="Enter Message" required></textarea>
+        </div>
+        <div class="form-group col-md-12">
+            <button type="submit" class="btn btn-primary">Send Message</button>
+        </div>
+    </form>
+</section>
+</div>
+</div>
+</br>
+
+{% endblock %}
