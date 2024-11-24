@@ -1,6 +1,0 @@
-0 How are you
-1 Thank You
-2 I Love You
-3 Yes
-4 No
-5 Hello
