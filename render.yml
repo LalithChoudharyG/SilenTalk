@@ -3,7 +3,7 @@ services:
     name: my-django-app
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn real_time_detection.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "uvicorn real_time_detection.asgi:application --host=0.0.0.0 --port=$PORT --reload"
     environment:
       - name: PYTHON_VERSION
         value: "3.9"  # Or your desired Python version
