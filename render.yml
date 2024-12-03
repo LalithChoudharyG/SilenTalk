@@ -1,5 +1,7 @@
 services:
   - type: web
-    name: my-python-service
-    runtime: python
-    pythonVersion: 3.10
+    name: your-service-name
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python your_start_script.py
+    pythonVersion: 3.9  # Use the desired Python version, e.g., 3.9 or 3.10
