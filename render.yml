@@ -1,0 +1,5 @@
+services:
+  - type: web
+    name: my-python-service
+    runtime: python
+    pythonVersion: 3.10
