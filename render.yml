@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: my-web-app
+    name: my-django-app
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python app.py"
+    startCommand: "gunicorn real_time_detection.wsgi:application --bind 0.0.0.0:$PORT"
     environment:
       - name: PYTHON_VERSION
-        value: "3.9"
+        value: "3.9"  # Or your desired Python version
