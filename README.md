@@ -10,4 +10,7 @@ Built with PyTorch, TensorFlow, and Django, the system is optimized for real-tim
 
 User feedback underscores SilenTalk's effectiveness in enabling seamless communication and fostering inclusivity. With plans for multi-language support and mobile integration, this project aims to further empower the hearing-impaired community and reduce communication barriers.
 
+SNEAK_PEEK
+![icon](https://github.com/LalithChoudharyG/SilenTalk/blob/main/SNEAKPEEK/SP-1.png)
+
 
